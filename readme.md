@@ -25,7 +25,7 @@ To run the CRM Backend project, follow these steps:
 3. Change into the project directory:
 
    ```
-   cd crm-backend
+   cd crm-udacity
    ```
 4. Install the project dependencies:
 
