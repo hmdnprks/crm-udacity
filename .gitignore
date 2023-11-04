@@ -1,0 +1,23 @@
+# Go binary and object files
+*.exe
+*.o
+*.out
+
+# Compiled Go code
+/bin/
+/pkg/
+
+# Dependency directories (e.g., from 'go get')
+/vendor/
+
+# Environment-specific files
+.env
+.envrc
+.vscode/
+.idea/
+
+# macOS
+.DS_Store
+
+# Windows
+Thumbs.db
