@@ -109,6 +109,62 @@ func addCustomer(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(customer)
 }
 
+func updateCustomer(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	params := mux.Vars(r)
+
+	var customer Customer
+
+	reqBody, _ := ioutil.ReadAll(r.Body)
+	json.Unmarshal(reqBody, &customer)
+
+	for i, c := range customers {
+		if c.ID == params["id"] {
+			customers = append(customers[:i], customers[i+1:]...)
+			customers = append(customers, customer)
+			w.WriteHeader(http.StatusOK)
+			json.NewEncoder(w).Encode(customer)
+			return
+		}
+	}
+
+	// return 404 if customer not found
+	w.WriteHeader(http.StatusNotFound)
+	// return json message if customer not found
+	json.NewEncoder(w).Encode(struct {
+		Message string `json:"message"`
+	}{
+		Message: "Customer not found",
+	})
+}
+
+func deleteCustomer(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	params := mux.Vars(r)
+
+	for i, customer := range customers {
+		if customer.ID == params["id"] {
+			customers = append(customers[:i], customers[i+1:]...)
+			w.WriteHeader(http.StatusOK)
+			json.NewEncoder(w).Encode(struct {
+				Message string `json:"message"`
+			}{
+				Message: "Customer deleted",
+			})
+			return
+		}
+	}
+
+	// return 404 if customer not found
+	w.WriteHeader(http.StatusNotFound)
+	// return json message if customer not found
+	json.NewEncoder(w).Encode(struct {
+		Message string `json:"message"`
+	}{
+		Message: "Customer not found",
+	})
+}
+
 func main() {
 	router := mux.NewRouter()
 
@@ -116,16 +172,9 @@ func main() {
 	router.HandleFunc("/customers", getCustomers).Methods("GET")
 	router.HandleFunc("/customers/{id}", getCustomer).Methods("GET")
 	router.HandleFunc("/customers", addCustomer).Methods("POST")
+	router.HandleFunc("/customers/{id}", updateCustomer).Methods("PUT")
+	router.HandleFunc("/customers/{id}", deleteCustomer).Methods("DELETE")
 
 	println("Server is listening on port 3000...")
 	log.Fatal(http.ListenAndServe(":3000", router))
-
-	// check if port is in use
-	// l, err := net.Listen("tcp", ":3000")
-	// if err != nil {
-	// 	log.Fatal(err)
-	// }
-	// defer l.Close()
-	// log.Println("Server is listening on port 3000...")
-	// http.ListenAndServe(":3000", router)
 }
